@@ -7,11 +7,22 @@ import {
   KeepScale,
 } from "react-zoom-pan-pinch";
 
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+
 import { MapPinIcon } from "@heroicons/react/24/solid";
 
 import MapSvg from "./svg/MapSvg";
 import { UserSubmition } from "@/app/page";
-import { json } from "stream/consumers";
 
 function latLongToPixels(
   lat: number,
@@ -39,7 +50,11 @@ function Marker({ data }: { data: UserSubmition }) {
     x: number;
     y: number;
   } | null>(null);
-  if (!data.coords) return null;
+  const [modalIsOpen, setmodalIsOpen] = useState(false);
+
+  if (!data.coords) {
+    return null;
+  }
 
   const pixels = latLongToPixels(
     data.coords!.latitude,
@@ -62,11 +77,10 @@ function Marker({ data }: { data: UserSubmition }) {
       );
 
       if (distanceMoved < 10) {
-        // Threshold for considering it a click and not a pan
-        // Click action
-        alert(
-          `name : ${data.name}, location : ${data.location}, skool account : ${data.skoolAccountLink}`,
-        );
+        // alert(
+        //   `name : ${data.name}, location : ${data.location}, skool account : ${data.skoolAccountLink}`,
+        // );
+        setmodalIsOpen(true);
       }
     }
     setMouseDownPos(null); // Reset mouse down position
@@ -95,6 +109,33 @@ function Marker({ data }: { data: UserSubmition }) {
           </div>
         </KeepScale>
         {/* {address} latitude:{latitude} longitude:{longitude} */}
+        <AlertDialog open={modalIsOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>{data.name}</AlertDialogTitle>
+              <AlertDialogDescription>
+                <div>
+                  location: {data.location} <br />
+                  <a
+                    target="_blank"
+                    className=" text-blue-500 underline"
+                    href={data.skoolAccountLink}
+                  >
+                    Skool account
+                  </a>
+                </div>
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel onClick={() => setmodalIsOpen(false)}>
+                Cancel
+              </AlertDialogCancel>
+              <AlertDialogAction onClick={() => setmodalIsOpen(false)}>
+                Continue
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </>
   );

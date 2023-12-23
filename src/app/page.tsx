@@ -3,6 +3,7 @@ import Image from "next/image";
 import fetchAndParseCSV from "@/utils/fetchAndPraseCsv";
 
 import Map from "@/components/Map";
+import ViewAll from "@/components/ViewAll";
 
 import * as geolib from "geolib";
 
@@ -71,6 +72,7 @@ export default async function Home() {
   return (
     <div className=" h-full bg-slate-800">
       <div className="flex h-full items-center justify-center">
+        <ViewAll data={dataWithCoords} />
         <Map data={dataWithCoords} />
       </div>
     </div>

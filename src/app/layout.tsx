@@ -18,7 +18,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <div className=" h-[100dvh]">{children}</div>
+        <div className="h-[100dvh] selection:bg-slate-400">{children}</div>
       </body>
     </html>
   );
