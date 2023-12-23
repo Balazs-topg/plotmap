@@ -14,7 +14,9 @@ const ResponsiveScale = ({ children }: { children: ReactNode }) => {
   useLayoutEffect(() => {
     setTimeout(() => {
       setScaleFactor((1 * width) / 1000);
-      const container = document.querySelector(".scale-container");
+      const container = document.querySelector(
+        ".scale-container",
+      ) as HTMLElement;
       if (container) {
         container.style.transform = `scale(${scaleFactor})`;
       }
