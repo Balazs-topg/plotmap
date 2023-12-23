@@ -32,7 +32,16 @@ export default function ViewAll({ data }: { data: UserSubmition[] }) {
         {/* <AlertDialogTrigger>View full list</AlertDialogTrigger> */}
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>All adonis map entries</AlertDialogTitle>
+            <AlertDialogTitle>
+              All adonis map entries <br />{" "}
+              <a
+                href="https://forms.gle/AVcHDRCXnC3AowLa9"
+                target="_blank"
+                className="text-blue-500 underline"
+              >
+                Click here to submit your entry
+              </a>
+            </AlertDialogTitle>
             <AlertDialogDescription className=" max-h-[50dvh] overflow-auto">
               {data.map((item) => {
                 return (
