@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import {
   TransformWrapper,
   TransformComponent,
@@ -9,6 +10,8 @@ import {
 import { MapPinIcon } from "@heroicons/react/24/solid";
 
 import MapSvg from "./svg/MapSvg";
+import { UserSubmition } from "@/app/page";
+import { json } from "stream/consumers";
 
 function latLongToPixels(
   lat: number,
@@ -31,17 +34,44 @@ function latLongToPixels(
   return { x, y };
 }
 
-function Marker({
-  latitude,
-  longitude,
-  address,
-}: {
-  latitude: number;
-  longitude: number;
-  address?: string;
-}) {
-  const pixels = latLongToPixels(latitude, longitude, 1010, 666, 474.5, 131);
-  console.log(pixels);
+function Marker({ data }: { data: UserSubmition }) {
+  const [mouseDownPos, setMouseDownPos] = useState<{
+    x: number;
+    y: number;
+  } | null>(null);
+  if (!data.coords) return null;
+
+  const pixels = latLongToPixels(
+    data.coords!.latitude,
+    data.coords!.longitude,
+    1010,
+    666,
+    474.5,
+    131,
+  );
+
+  const handleMouseDown = (event: React.MouseEvent) => {
+    setMouseDownPos({ x: event.clientX, y: event.clientY });
+  };
+
+  const handleMouseUp = (event: React.MouseEvent) => {
+    if (mouseDownPos) {
+      const distanceMoved = Math.sqrt(
+        Math.pow(event.clientX - mouseDownPos.x, 2) +
+          Math.pow(event.clientY - mouseDownPos.y, 2),
+      );
+
+      if (distanceMoved < 10) {
+        // Threshold for considering it a click and not a pan
+        // Click action
+        alert(
+          `name : ${data.name}, location : ${data.location}, skool account : ${data.skoolAccountLink}`,
+        );
+      }
+    }
+    setMouseDownPos(null); // Reset mouse down position
+  };
+
   return (
     <>
       <div
@@ -55,11 +85,8 @@ function Marker({
           <div className="absolute flex h-0 w-0 items-center justify-center ">
             <div className="min-h-10 min-w-10">
               <div
-                onClick={() => {
-                  setTimeout(() => {
-                    alert(address);
-                  }, 0);
-                }}
+                onMouseDown={handleMouseDown}
+                onMouseUp={handleMouseUp}
                 className="-translate-y-1/2"
               >
                 <MapPinIcon className="origin-bottom cursor-pointer text-red-500 drop-shadow transition-all active:scale-90" />
@@ -74,13 +101,13 @@ function Marker({
 }
 
 export default function Map({
-  points,
+  data,
   className,
 }: {
   className?: string;
-  points: any[];
+  data: UserSubmition[];
 }) {
-  const convertedPixelCoords = points.map((point) => {
+  const convertedPixelCoords = data.map((point) => {
     const result = point;
     // result.latitude = result.latitude * 9.05;
     // result.longitude = result.longitude * 18.6;
@@ -90,19 +117,12 @@ export default function Map({
 
   return (
     <>
-      <TransformWrapper maxScale={100} wheel={{ smoothStep: 0.01 }}>
+      <TransformWrapper maxScale={200} wheel={{ smoothStep: 0.01 }}>
         <TransformComponent>
           <div className="relative flex h-[100dvh] w-screen scale-125 cursor-grab items-center justify-center active:cursor-grabbing">
             <div className=" relative">
-              {convertedPixelCoords.map((point) => {
-                return (
-                  <Marker
-                    latitude={point.latitude}
-                    longitude={point.longitude}
-                    address={point.address}
-                    key={point.latitude}
-                  />
-                );
+              {convertedPixelCoords.map((item) => {
+                return <Marker key={JSON.stringify(item)} data={item} />;
               })}
               <MapSvg />
             </div>

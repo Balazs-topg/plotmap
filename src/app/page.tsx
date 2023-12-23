@@ -1,8 +1,24 @@
 import Image from "next/image";
 
+import fetchAndParseCSV from "@/utils/fetchAndPraseCsv";
+
 import Map from "@/components/Map";
 
 import * as geolib from "geolib";
+
+interface location {
+  latitude: number;
+  longitude: number;
+  location: string;
+}
+
+export interface UserSubmition {
+  submtionTime: string;
+  name: string;
+  skoolAccountLink: string;
+  location: string;
+  coords?: location;
+}
 
 async function getCoordinates(address: string) {
   const url = new URL("https://nominatim.openstreetmap.org/search");
@@ -15,12 +31,10 @@ async function getCoordinates(address: string) {
   try {
     const response = await fetch(url);
     const data = await response.json();
-    console.log("data", data);
     if (data.length > 0) {
       return {
         latitude: data[0].lat,
         longitude: data[0].lon,
-        address: address,
       };
     } else {
       return null;
@@ -32,22 +46,32 @@ async function getCoordinates(address: string) {
 }
 
 export default async function Home() {
-  const coordsÄlmhult = await getCoordinates("Älmhult");
-  const coordsLa = await getCoordinates("Los Angeles");
-  const coordsSydney = await getCoordinates("Sydney");
-  const coordsSkagen = await getCoordinates("Skagen");
+  // const googleSheetId = "1LUVZlvs6UTxpZHMXhp-98Nh75NHsUItaV1fcsNL9mjY";
+  // const googleApiKey = process.env.GOOGLE_API_KEY;
+  const csvData = await fetchAndParseCSV(
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vR5dhQXS7UwSj5oImKG0yYFRLbLxqhPx3IGmPeyIj-viSxDxQh9MZCY6jp9xKtQz37i_zkQSosNlxTE/pub?output=csv",
+  );
+  const data = csvData.slice(1).map((item) => {
+    const newItem: any = {};
+    newItem.submtionTime = item[0];
+    newItem.name = item[1];
+    newItem.skoolAccountLink = item[2];
+    newItem.location = item[3];
+    return newItem as UserSubmition;
+  });
+  const dataWithCoords = (await Promise.all(
+    data.map(async (item) => {
+      const coords = await getCoordinates(item.location);
+      return { ...item, coords };
+    }),
+  )) as UserSubmition[];
 
-  const allOfOurCoords = [
-    coordsÄlmhult!,
-    coordsLa!,
-    coordsSydney!,
-    coordsSkagen!,
-  ];
-  console.log(allOfOurCoords);
+  console.log("werwerwerwer:", dataWithCoords);
+
   return (
     <div className=" h-full bg-slate-800">
       <div className="flex h-full items-center justify-center">
-        <Map points={allOfOurCoords} />
+        <Map data={dataWithCoords} />
       </div>
     </div>
   );
