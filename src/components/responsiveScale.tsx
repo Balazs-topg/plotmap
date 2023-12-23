@@ -12,16 +12,13 @@ const ResponsiveScale = ({ children }: { children: ReactNode }) => {
   const [scaleFactor, setScaleFactor] = useState(1);
 
   useLayoutEffect(() => {
-    setTimeout(() => {
-      setScaleFactor((1 * width) / 1000);
-      const container = document.querySelector(
-        ".scale-container",
-      ) as HTMLElement;
-      if (container) {
-        container.style.transform = `scale(${scaleFactor})`;
-      }
-    }, 0);
-  }, [width]);
+    const newScaleFactor = (1 * width) / 1000;
+    setScaleFactor(newScaleFactor);
+    const container = document.querySelector(".scale-container") as HTMLElement;
+    if (container) {
+      container.style.transform = `scale(${newScaleFactor})`;
+    }
+  }, [width]); // Dependency on `width` ensures this runs when window size changes
 
   return (
     <scaleFactorContext.Provider value={scaleFactor}>

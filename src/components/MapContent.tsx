@@ -149,7 +149,6 @@ function Marker({ data, scale }: { data: UserSubmition; scale: number }) {
 export default function MapContent({ data }: { data: UserSubmition[] }) {
   const scaleFactor = useContext(scaleFactorContext);
   useLayoutEffect(() => {
-    console.log("scaleFactor contenttt", scaleFactor);
   }, [scaleFactor]);
 
   return (

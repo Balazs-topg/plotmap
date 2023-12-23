@@ -67,8 +67,6 @@ export default async function Home() {
     }),
   )) as UserSubmition[];
 
-  console.log("werwerwerwer:", dataWithCoords);
-
   return (
     <div className=" h-full bg-slate-800">
       <div className="flex h-full items-center justify-center">
