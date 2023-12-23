@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useContext, useLayoutEffect, useState } from "react";
 import {
   TransformWrapper,
   TransformComponent,
@@ -21,8 +21,8 @@ import {
 
 import { MapPinIcon } from "@heroicons/react/24/solid";
 
-import MapContent from "./MapContent";
 import ResponsiveScale from "./responsiveScale";
+import { scaleFactorContext } from "./responsiveScale";
 import MapSvg from "./svg/MapSvg";
 import { UserSubmition } from "@/app/page";
 
@@ -47,7 +47,7 @@ function latLongToPixels(
   return { x, y };
 }
 
-function Marker({ data }: { data: UserSubmition }) {
+function Marker({ data, scale }: { data: UserSubmition; scale: number }) {
   const [mouseDownPos, setMouseDownPos] = useState<{
     x: number;
     y: number;
@@ -98,7 +98,10 @@ function Marker({ data }: { data: UserSubmition }) {
         }}
       >
         <KeepScale className="flex h-full w-full items-center justify-center">
-          <div className="absolute flex h-0 w-0 items-center justify-center ">
+          <div
+            className="absolute flex h-0 w-0 items-center justify-center"
+            style={{ transform: `scale(${1 / scale})` }}
+          >
             <div className="min-h-10 min-w-10">
               <div
                 onMouseDown={handleMouseDown}
@@ -143,22 +146,26 @@ function Marker({ data }: { data: UserSubmition }) {
   );
 }
 
-export default function Map({
-  data,
-  className,
-}: {
-  className?: string;
-  data: UserSubmition[];
-}) {
+export default function MapContent({ data }: { data: UserSubmition[] }) {
+  const scaleFactor = useContext(scaleFactorContext);
+  useLayoutEffect(() => {
+    console.log("scaleFactor contenttt", scaleFactor);
+  }, [scaleFactor]);
+
   return (
-    <div className="w-[100dvw]">
-      <TransformWrapper maxScale={200} wheel={{ smoothStep: 0.01 }}>
-        <TransformComponent>
-          <ResponsiveScale>
-            <MapContent data={data} />
-          </ResponsiveScale>
-        </TransformComponent>
-      </TransformWrapper>
+    <div className="relative flex h-[100dvh] w-screen cursor-grab items-center justify-center active:cursor-grabbing">
+      <div className="relative">
+        {data.map((item) => {
+          return (
+            <Marker
+              scale={scaleFactor}
+              key={JSON.stringify(item)}
+              data={item}
+            />
+          );
+        })}
+        <MapSvg />
+      </div>
     </div>
   );
 }

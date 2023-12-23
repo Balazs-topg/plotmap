@@ -1,9 +1,9 @@
 // @ts-nocheck
-export default function MapSvg() {
+export default function MapSvg({ className }: { className?: string }) {
   return (
     <div>
       <svg
-        className="invert"
+        className={`invert ${className}`}
         xmlns="http://www.w3.org/2000/svg"
         width="1009.6727"
         height="665.96301"
