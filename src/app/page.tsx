@@ -1,10 +1,12 @@
 import Image from "next/image";
 
 import fetchAndParseCSV from "@/utils/fetchAndPraseCsv";
+import praseCSV from "@/utils/praseCsv";
 
 import Map from "@/components/Map";
 import ViewAll from "@/components/ViewAll";
 
+import { promises as fs } from "fs";
 import * as geolib from "geolib";
 
 interface location {
@@ -47,8 +49,23 @@ async function getCoordinates(address: string) {
 }
 
 export default async function Home() {
-  // const googleSheetId = "1LUVZlvs6UTxpZHMXhp-98Nh75NHsUItaV1fcsNL9mjY";
-  // const googleApiKey = process.env.GOOGLE_API_KEY;
+  //old data
+  const oldFile = await fs.readFile(
+    process.cwd() + "/src/data/oldAdonisMap.csv",
+    "utf8",
+  );
+  const oldFilePrased = await praseCSV(oldFile);
+  const oldData = oldFilePrased.slice(1).map((item) => {
+    const newItem: any = {};
+    newItem.submtionTime = undefined;
+    newItem.name = item[2];
+    newItem.skoolAccountLink = undefined;
+    newItem.location = undefined;
+    newItem.coords = { latitude: item[1], longitude: item[0] };
+    return newItem as UserSubmition;
+  });
+
+  //new data
   const csvData = await fetchAndParseCSV(
     "https://docs.google.com/spreadsheets/d/e/2PACX-1vR5dhQXS7UwSj5oImKG0yYFRLbLxqhPx3IGmPeyIj-viSxDxQh9MZCY6jp9xKtQz37i_zkQSosNlxTE/pub?output=csv",
   );
@@ -67,11 +84,15 @@ export default async function Home() {
     }),
   )) as UserSubmition[];
 
+  //merge old with new
+
+  const mergedData = [...dataWithCoords, ...oldData];
+
   return (
     <div className=" h-full bg-slate-800">
       <div className="flex h-full items-center justify-center">
-        <ViewAll data={dataWithCoords} />
-        <Map data={dataWithCoords} />
+        <ViewAll data={mergedData} />
+        <Map data={mergedData} />
       </div>
     </div>
   );

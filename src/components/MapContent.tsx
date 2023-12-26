@@ -48,6 +48,7 @@ function latLongToPixels(
 }
 
 function Marker({ data, scale }: { data: UserSubmition; scale: number }) {
+  console.log("Marker was renrederd");
   const [mouseDownPos, setMouseDownPos] = useState<{
     x: number;
     y: number;
@@ -148,8 +149,7 @@ function Marker({ data, scale }: { data: UserSubmition; scale: number }) {
 
 export default function MapContent({ data }: { data: UserSubmition[] }) {
   const scaleFactor = useContext(scaleFactorContext);
-  useLayoutEffect(() => {
-  }, [scaleFactor]);
+  useLayoutEffect(() => {}, [scaleFactor]);
 
   return (
     <div className="relative flex h-[100dvh] w-screen cursor-grab items-center justify-center active:cursor-grabbing">
